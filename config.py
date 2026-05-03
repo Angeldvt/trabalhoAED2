@@ -1,24 +1,24 @@
 #Inserir, Remover, Acessar, Exibir estrutura, Buscar informação, Acessar informação
+class Dado_da_Lista:
+    def __init__(self, dado=None, anterior=None, proximo=None):
+        self.dado_anterior = anterior
+        self.dado_proximo = proximo
+        self.dado = dado
+    def alteraProximo(self, proximo):
+        self.dado_proximo = proximo
+    def alteraAnterior(self, anterior):
+        self.dado_anterior = anterior
 
-class lista_linear:
+class Lista_circular:
     def __init__(self, n_max):
-        self.tamanho = n_max
-        #self.lista = [None] * self.tamanho
+        self.maximo = n_max
 
-        self.lista = []
-        self.lista.append(None)
-        self.lista.append(None)
-        self.lista.append(None)
-        self.lista.append(None)
-        self.lista.append(None)
-        self.lista.append(None)
-        self.lista.append(1)
-        self.lista.append(2)
-        self.lista.append(3)
-        self.lista.append(4)
+        self.lista = [None] * self.maximo
+        for i in range(0, self.maximo):
+            self.lista[i] = Dado_da_Lista()
         
-        self.inicio = 6
-        self.fim = 9
+        self.inicio = -1
+        self.fim = -1
 
 
     # Verifica se a lista está vazia
@@ -34,105 +34,31 @@ class lista_linear:
         if self.fim >= self.inicio:
             return self.fim - self.inicio + 1 # retorna o tamanho para lista normal
         else:
-            return self.tamanho - self.inicio + self.fim + 1 # retorna tamanho da lista circular
+            return self.maximo - self.inicio + self.fim + 1 # retorna tamanho da lista circular
             #           10      -       9     +     8)   + 1     [L4,L5,L6,L7,L8,L9,L10,L1,L2,L3]
-
 
     def isCheia(self):
         return (self.fim == (self.inicio-1))
 
 
-    def inserir(self, dado, posicao: int=None): # Se a posição nao receber nada, o item será adicionado ao fim da lista atual
-        tamanho = self.getTamanho()
-        print(f'tamanho: {tamanho}')
-        
-        if self.isCheia():  # bloqueia caso cheia
-            print("Lista cheia. Não foi possível inserir.")
-            return False
-        
-        if posicao == None:
-            posicao = tamanho+1 # o item será colocado no final da lista
-
-
-        if not (tamanho+1 >= posicao >= 0): # verifica se a posição desejada está entre (inicio-1) e (fim+1)
-            print("\033[31m>>erro 1<<\033[m")
-            return False
-
-
-        if self.inicio == 0:    # casos apenas para quando a lista começa no indice 0
-            if posicao == tamanho+1:    # caso ideal perfeito amém
-                print("\033[31m>> . <<\033[m")
-                print("\033[31m>> caso ideal <<\033[m")
-                self.lista[posicao-1] = dado
+    def inserir(self, dado, posicao: int=None):
+        if self.isVazia():
+            if not posicao:
+                posicao = 0
             else:
-                print("\033[31m>>  posicao menor q tamanho  <<\033[m")  # caso a posição desejada seja uma posição já ocupada
-                #print(posicao-1, tamanho)
-                empurra = True
-                while empurra:  # loop para empurrar outros dados para posições ainda não ocupadas e permitir a inserção do dado na posição desejada
-                    for i in range(0, tamanho+1):
-                        if self.lista[i] == None:
-                            #print(i, "-", self.lista[i])
-                            self.lista[i] = self.lista[i-1]
-                            self.lista[i-1] = None
-                            #lista.exibir_estrutura()
-                            if (posicao == i):
-                                self.lista[i-1] = dado
-                                empurra = False
-        
-        else:   # caso (self.inicio != 0), ou seja, caso o inicio da lista não seja no índice zero
-            if self.inicio < self.fim:  # caso o inicio esteja antes do fim, ou seja, a lista ainda não é circular
-                print(f'pos: {posicao} / self.inicio: {self.inicio} / pos+ini: {self.inicio+posicao}')
-                posicao += self.inicio
-                if posicao == tamanho+self.inicio+1:    # caso ideal perfeito amém
-                    if (self.fim == self.tamanho-1):
-                        self.lista[0] = dado
-                        return True
-                    print("\033[31m>> . <<\033[m")
-                    print("\033[31m>> caso ideal <<\033[m")
-                    self.lista[posicao-1] = dado
-                
-                else:
-                    print("\033[31m>>  posicao menor q tamanho  <<\033[m")  # caso a posição desejada seja uma posição já ocupada
-                    #print(posicao-1, tamanho)
-                    fronteira = False
-                    #print(f' posicao {posicao} / self.tamanho {self.tamanho}')
-                    if self.inicio <= posicao <= (self.tamanho):
-                        fronteira = True
-                        print("\033[31m>>  FRONTEIRA  <<\033[m")
-                        self.lista[0] = self.lista[self.tamanho-1]
-                        self.lista[self.tamanho-1] = None
-                        lista.exibir_estrutura()
-                    empurra = True
-                    cont = 0
-                    while empurra and not fronteira:  # loop para empurrar outros dados para posições ainda não ocupadas e permitir a inserção do dado na posição desejada
-                        for i in range(self.inicio, tamanho+self.inicio+1):
-                            if self.lista[i] == None:
-                                #print(i, "-", self.lista[i])
-                                self.lista[i] = self.lista[i-1]
-                                self.lista[i-1] = None
-                                #lista.exibir_estrutura()
-                                if (posicao == i):
-                                    self.lista[i-1] = dado
-                                    empurra = False
-                    while empurra and fronteira:
-                        for i in range(self.inicio, tamanho+self.inicio):
-                            print(">>>>", i, self.lista[i])
-                            if self.lista[i] == None:
-                                if (posicao-1 == i):
-                                    self.lista[i] = dado
-                                    empurra = False
-                                #print(i, "-", self.lista[i])
-                                else:
-                                    self.lista[i] = self.lista[i-1]
-                                    self.lista[i-1] = None
-                                    #lista.exibir_estrutura()
-                                print("teste >>> ", posicao, self.inicio, i, tamanho)
-                                #if (posicao-1 == i):
-                                #    self.lista[i] = dado
-                                #    empurra = False
+                posicao -= 1
+            self.lista[posicao] = Dado_da_Lista(dado)
+            self.inicio = posicao
+            self.fim = posicao
 
-        if posicao >= (self.tamanho/2):
-            pass
+        else:
+            if posicao == None:
+                posicao = self.getTamanho()+1
+                print(posicao)
+                if (posicao-1) > 0:
+                    self.lista[posicao-1] = Dado_da_Lista(dado, anterior=self.lista[posicao-2], proximo=self.lista[posicao])
+                    self.lista[posicao-2].alteraProximo(self.lista[posicao-1])
+                self.fim += 1
 
 
 
@@ -140,14 +66,17 @@ class lista_linear:
         pass
     def acessar(self):
         pass
+
+
     def exibir_estrutura(self):
         print("\n-- Lista:\n[", end="")
         for i in range(0, len(self.lista)):
-            if self.lista[i]:  # --> só vai printar dados que não forem "None"
+            if self.lista[i] != None:  # --> só vai printar dados que não forem "None"
                 if i < len(self.lista)-1:
-                    print(f"{self.lista[i]}", end=", ")
+                    print(f"{self.lista[i].dado}", end=", ")
                 else:
-                    print(f"{self.lista[i]}", end="]\n--\n")
+                    print(f"{self.lista[i].dado}", end="]\n--\n")
+
 
     def buscar_info(self):
         pass
@@ -157,16 +86,20 @@ class lista_linear:
 
 # teste <<<
 print()
-lista = lista_linear(10)
-#print(lista.isVazia())
-#print(lista.getTamanho())
-
-#print(lista.isCheia())
-
-#lista.exibir_estrutura()
-lista.exibir_estrutura()
-print()
-
-lista.inserir(99, 4)
+lista = Lista_circular(10)
 
 lista.exibir_estrutura()
+
+lista.inserir(1)
+
+lista.exibir_estrutura()
+print(lista.inicio, lista.fim) # ---> quando tiver 1 elemento, ambos devem ter o mesmo valor
+
+
+lista.inserir(2)
+lista.exibir_estrutura()
+print(lista.inicio, lista.fim) # ---> quando tiver 1 elemento, ambos devem ter o mesmo valor
+
+print("item 2 (indice 1) da lista aponta pro dado anterior:", lista.lista[1].dado_anterior.dado)
+print("item 2 (indice 1) da lista aponta pro próximo dado:", lista.lista[1].dado_proximo.dado)
+print("item 1 (indice 0) da lista aponta pro próximo dado:", lista.lista[0].dado_proximo.dado)
