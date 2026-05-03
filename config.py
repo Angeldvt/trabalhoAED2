@@ -12,6 +12,22 @@ class Dado_da_Lista:
     def alteraNodo(self, n):
         self.nodo += n
 
+    def getProximo(self):
+        return self.dado_proximo
+    
+    def getAnterior(self):
+        return self.dado_anterior
+
+    def exibirSe(self):
+        print(f'[ dado: {self.dado} / nodo: {self.nodo}', end=' / ')
+
+        if self.dado_anterior != None:
+            print(f'anterior: {self.dado_anterior.dado}', end=' / ')
+        
+        if self.dado_proximo != None:
+            print(f'/ proximo: {self.dado_proximo.dado}', end=' ')
+        print(']')
+
 class Lista_circular:
     def __init__(self, n_max):
         self.maximo = n_max
@@ -19,7 +35,19 @@ class Lista_circular:
         
         self.lista = [None] * self.maximo
         for i in range(0, self.maximo):
-            self.lista[i] = Dado_da_Lista(nodo=i+1)
+            self.lista[i] = Dado_da_Lista(nodo=-1)
+        
+        for i in range(0, self.maximo): # apontando os anteriores
+            if i == 0:
+                self.lista[i].alteraAnterior(self.lista[self.maximo-1])
+            else:
+                self.lista[i].alteraAnterior(self.lista[i-1])
+
+        for i in range(0, self.maximo): # apontando os próximos
+            if i == self.maximo-1:
+                self.lista[i].alteraProximo(self.lista[0])
+            else:
+                self.lista[i].alteraProximo(self.lista[i+1])
         
         self.inicio = -1
         self.fim = -1
@@ -27,22 +55,33 @@ class Lista_circular:
 
     # Verifica se a lista está vazia
     def isVazia(self):
-        if self.inicio == -1 and self.fim == -1:
-            return True
+        if type(self.inicio) == int:
+            if self.inicio == -1 and self.fim == -1:
+                return True
         return False
 
     
     def getTamanho(self):
         if self.isVazia():
             return 0 # retorna vazia
-        if self.fim >= self.inicio:
-            return self.fim - self.inicio + 1 # retorna o tamanho para lista normal
+        if type(self.inicio) == int:
+            if self.fim >= self.inicio:
+                return self.fim - self.inicio + 1 # retorna o tamanho para lista normal
+            else:
+                return self.maximo - self.inicio + self.fim + 1 # retorna tamanho da lista circular
+                #           10      -       9     +     8)   + 1     [L4,L5,L6,L7,L8,L9,L10,L1,L2,L3]
         else:
-            return self.maximo - self.inicio + self.fim + 1 # retorna tamanho da lista circular
-            #           10      -       9     +     8)   + 1     [L4,L5,L6,L7,L8,L9,L10,L1,L2,L3]
+            if self.fim.nodo >= self.inicio.nodo:
+                return self.fim.nodo - self.inicio.nodo + 1 # retorna o tamanho para lista normal
+            else:
+                return self.maximo - self.inicio.nodo + self.fim.nodo + 1 # retorna tamanho da lista circular
+                #           10      -       9     +     8)   + 1     [L4,L5,L6,L7,L8,L9,L10,L1,L2,L3]
 
     def isCheia(self):
-        return (self.fim == (self.inicio-1))
+        if type(self.inicio) == int:
+            return (self.fim == (self.inicio-1))
+        else:
+            return ((self.fim.nodo == (self.inicio.nodo-1))) or (self.inicio.nodo == 0 and self.fim.nodo == self.maximo-1)
 
 
     def inserir(self, dado, posicao: int=None):
@@ -51,30 +90,78 @@ class Lista_circular:
             return False
         
         if self.isVazia():
-            if not posicao:
+            if posicao == None:
                 posicao = 0
-            else:
-                posicao -= 1
-            self.lista[posicao] = Dado_da_Lista(nodo=posicao, dado=dado,)
-            self.inicio = posicao
-            self.fim = posicao
+            #else:
+                #posicao -= 1
+            temp_proximo = self.lista[posicao].getProximo()
+            temp_anterior = self.lista[posicao].getAnterior()
+            self.lista[posicao] = Dado_da_Lista(nodo=0, dado=dado, anterior=temp_anterior, proximo=temp_proximo)
+            self.lista[posicao].getAnterior().alteraProximo(self.lista[posicao])
+            self.lista[posicao].getProximo().alteraAnterior(self.lista[posicao])
+            self.inicio = self.lista[posicao]
+            self.fim = self.lista[posicao]
+
+            '''
+            temp = 1
+            anota_nodo = False
+            for i in range(0, self.maximo):
+                if anota_nodo:
+                    self.lista[i].nodo = temp
+                    temp += 1
+                if self.lista[i].nodo == 0:
+                    anota_nodo = True
+            
+            for i in range(0, self)
+            '''
+            n_nodo = 2
+            proximo_nodo = self.lista[posicao].getProximo()
+            while proximo_nodo.nodo != 0:
+                proximo_nodo.alteraNodo(n_nodo)
+                proximo_nodo = proximo_nodo.getProximo()
+                n_nodo += 1
+                #print(proximo_nodo.nodo)
+            
+            print("fim.dado/posicao:", self.fim.dado, self.fim.nodo)
             return True
 
-        else:
+        else:   # aqui a posição será o nodo desejado
+            for i in self.lista:
+                if posicao == i.nodo:
+                    i.exibirSe()
+
+
+            '''
             if posicao == None:
-                posicao = self.getTamanho()+1
+                posicao = self.getTamanho()+self.inicio.nodo
                 print(posicao)
-                #if (posicao-1) > 0: # não lembro o objetivo desse teste
-                if self.lista[posicao-1].dado == None:  # caso simples
-                    print("aqui tem nada")
-                    self.lista[posicao-1] = Dado_da_Lista(nodo=posicao, dado=dado, anterior=self.lista[posicao-2], proximo=self.lista[posicao])
-                    self.lista[posicao-2].alteraProximo(self.lista[posicao-1])  # faz o anterior apontar pro atual
-                    self.lista[posicao].alteraAnterior(self.lista[posicao-1])   # faz o proximo apontar pro atual
-                    self.fim += 1
-                    return True
             
-            if posicao > 0:
-                pass
+            if posicao < 0:
+                print('posicao inválida')
+                return False
+            
+            if self.lista[posicao].dado == None:  # caso simples (caso a posição desejada esteja vazia)
+                print("aqui tem nada")
+                temp_proximo = self.lista[posicao].getProximo()
+                temp_anterior = self.lista[posicao].getAnterior()
+                self.lista[posicao] = Dado_da_Lista(nodo=posicao, dado=dado, anterior=temp_anterior, proximo=temp_proximo)
+                self.lista[posicao].getAnterior().alteraProximo(self.lista[posicao])
+                self.lista[posicao].getProximo().alteraAnterior(self.lista[posicao])
+                if posicao == self.getTamanho():
+                    self.fim = self.lista[posicao]
+                    print("fim.dado:", self.fim.dado)
+
+                if lista.isVazia():
+                    self.inicio = self.lista[posicao]
+                    self.fim = self.lista[posicao]
+                    print("fim.dado:", self.fim.dado)
+                return True
+            else:   # caso a posição desejada não esteja vazia
+                print('Aqui tem coisa, vamos arrumar')  # precisaremos testar: se o inicio muda; se o fim muda; se o fim/inicio circulam pelo arranjo
+                #if 
+            '''    
+
+            
 
 
 
@@ -107,22 +194,18 @@ lista = Lista_circular(10)
 
 lista.exibir_estrutura()
 
-lista.inserir(1)
+lista.inserir(1, 5)
+lista.exibir_estrutura()
+
+for i in lista.lista:
+    i.exibirSe()
+
+
+print('\n\n')
+lista.inserir(2, 1)
 
 lista.exibir_estrutura()
-print(lista.inicio, lista.fim) # ---> quando tiver 1 elemento, ambos devem ter o mesmo valor
+#lista.exibir_estrutura()
 
-
-lista.inserir(2)
-lista.exibir_estrutura()
-print(lista.inicio, lista.fim) # ---> quando tiver 1 elemento, ambos devem ter o mesmo valor
-
-print("item 2 (indice 1) da lista aponta pro dado anterior:", lista.lista[1].dado_anterior.dado)
-print("item 2 (indice 1) da lista aponta pro próximo dado:", lista.lista[1].dado_proximo.dado)
-print("item 1 (indice 0) da lista aponta pro próximo dado:", lista.lista[0].dado_proximo.dado)
-print("item 3 (indice 2) da lista aponta pro dado anterior:", lista.lista[2].dado_anterior.dado)
-
-
-lista.inserir(3)
-
-lista.exibir_estrutura()
+#for i in lista.lista:
+    #i.exibirSe()
