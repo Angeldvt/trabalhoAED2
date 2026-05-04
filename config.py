@@ -1,17 +1,19 @@
 #Inserir, Remover, Acessar, Exibir estrutura, Buscar informação, Acessar informação
 class Dado_da_Lista:
-    def __init__(self, nodo, dado=None, anterior=None, proximo=None):
+    def __init__(self, nodo, indice=-1, dado=None, anterior=None, proximo=None):
         self.dado_anterior = anterior
         self.dado_proximo = proximo
         self.dado = dado
         self.nodo = nodo
+        self.indice = indice
     def alteraProximo(self, proximo):
         self.dado_proximo = proximo
     def alteraAnterior(self, anterior):
         self.dado_anterior = anterior
     def alteraNodo(self, n):
         self.nodo += n
-
+    def alteraIndice(self, n):
+        self.indice += n
     def getProximo(self):
         return self.dado_proximo
     
@@ -19,7 +21,7 @@ class Dado_da_Lista:
         return self.dado_anterior
 
     def exibirSe(self):
-        print(f'[ dado: {self.dado} / nodo: {self.nodo}', end=' / ')
+        print(f'[ dado: {self.dado} / nodo: {self.nodo} / indice: {self.indice}', end=' / ')
 
         if self.dado_anterior != None:
             print(f'anterior: {self.dado_anterior.dado}', end=' / ')
@@ -35,7 +37,7 @@ class Lista_circular:
         
         self.lista = [None] * self.maximo
         for i in range(0, self.maximo):
-            self.lista[i] = Dado_da_Lista(nodo=-1)
+            self.lista[i] = Dado_da_Lista(nodo=-1, indice=i)
         
         for i in range(0, self.maximo): # apontando os anteriores
             if i == 0:
@@ -53,7 +55,23 @@ class Lista_circular:
         self.fim = -1
 
 
+    def getDadoFromNodo(self, n_nodo):
+        for i in self.lista:
+            if i.nodo == n_nodo:
+                return i
+
     # Verifica se a lista está vazia
+    def montaLista(self):
+        nova_lista = [None] * self.maximo
+        for i in range(0, self.maximo):
+            for j in self.lista:
+                if j.indice == i:
+                    nova_lista[i] = j
+                    break
+        
+        self.lista = nova_lista[:]
+            
+            #nova_lista[i] = item
     def isVazia(self):
         if type(self.inicio) == int:
             if self.inicio == -1 and self.fim == -1:
@@ -83,7 +101,9 @@ class Lista_circular:
         else:
             return ((self.fim.nodo == (self.inicio.nodo-1))) or (self.inicio.nodo == 0 and self.fim.nodo == self.maximo-1)
 
-
+    def mostrar_dados(self):
+        for i in self.lista:
+                i.exibirSe()
     def inserir(self, dado, posicao: int=None):
         if self.isCheia():
             print('>>Lista cheia')
@@ -94,26 +114,16 @@ class Lista_circular:
                 posicao = 0
             #else:
                 #posicao -= 1
-            temp_proximo = self.lista[posicao].getProximo()
-            temp_anterior = self.lista[posicao].getAnterior()
-            self.lista[posicao] = Dado_da_Lista(nodo=0, dado=dado, anterior=temp_anterior, proximo=temp_proximo)
-            self.lista[posicao].getAnterior().alteraProximo(self.lista[posicao])
-            self.lista[posicao].getProximo().alteraAnterior(self.lista[posicao])
+            #
+            self.lista[posicao] = Dado_da_Lista(nodo=0, indice=posicao, dado=dado, anterior=None, proximo=None)
+            self.lista[posicao].alteraAnterior(self.lista[posicao])
+            self.lista[posicao].alteraProximo(self.lista[posicao])
+            #
             self.inicio = self.lista[posicao]
             self.fim = self.lista[posicao]
 
-            '''
-            temp = 1
-            anota_nodo = False
-            for i in range(0, self.maximo):
-                if anota_nodo:
-                    self.lista[i].nodo = temp
-                    temp += 1
-                if self.lista[i].nodo == 0:
-                    anota_nodo = True
-            
-            for i in range(0, self)
-            '''
+
+            ''' funcao pra alterar o nodo dos None's - nao precisa mais...
             n_nodo = 2
             proximo_nodo = self.lista[posicao].getProximo()
             while proximo_nodo.nodo != 0:
@@ -121,45 +131,182 @@ class Lista_circular:
                 proximo_nodo = proximo_nodo.getProximo()
                 n_nodo += 1
                 #print(proximo_nodo.nodo)
-            
-            print("fim.dado/posicao:", self.fim.dado, self.fim.nodo)
-            return True
-
-        else:   # aqui a posição será o nodo desejado
-            for i in self.lista:
-                if posicao == i.nodo:
-                    i.exibirSe()
-
-
             '''
+            
+            return True
+        
+        else:   # caso nao esteja vazia--> aqui a posição será o nodo desejado
             if posicao == None:
-                posicao = self.getTamanho()+self.inicio.nodo
-                print(posicao)
-            
-            if posicao < 0:
-                print('posicao inválida')
-                return False
-            
-            if self.lista[posicao].dado == None:  # caso simples (caso a posição desejada esteja vazia)
-                print("aqui tem nada")
-                temp_proximo = self.lista[posicao].getProximo()
-                temp_anterior = self.lista[posicao].getAnterior()
-                self.lista[posicao] = Dado_da_Lista(nodo=posicao, dado=dado, anterior=temp_anterior, proximo=temp_proximo)
-                self.lista[posicao].getAnterior().alteraProximo(self.lista[posicao])
-                self.lista[posicao].getProximo().alteraAnterior(self.lista[posicao])
-                if posicao == self.getTamanho():
-                    self.fim = self.lista[posicao]
-                    print("fim.dado:", self.fim.dado)
+                posicao = self.fim.nodo+1   # escolhe a posicao padrao fim+1
+            #print(f'pos: {posicao} / ini.nodo+1: {self.fim.nodo+1}')
 
-                if lista.isVazia():
-                    self.inicio = self.lista[posicao]
-                    self.fim = self.lista[posicao]
-                    print("fim.dado:", self.fim.dado)
-                return True
-            else:   # caso a posição desejada não esteja vazia
-                print('Aqui tem coisa, vamos arrumar')  # precisaremos testar: se o inicio muda; se o fim muda; se o fim/inicio circulam pelo arranjo
-                #if 
-            '''    
+            if posicao == self.fim.nodo+1:  # caso a posicao desejada seja fim+1
+                if self.fim.indice < (self.maximo-1):   # testa se o fim+1 está dentro dos limites
+                    if self.inicio.indice <= self.fim.indice:   # testa se o inicio está antes do fim
+                        temp_dado = Dado_da_Lista(nodo=posicao, indice=self.inicio.indice+posicao, dado=dado, anterior=self.fim, proximo=self.inicio)   # cria um obj temporario
+                        
+                        self.fim.alteraProximo(temp_dado)   # faz o antigo fim apontar para o novo fim
+                        self.inicio.alteraAnterior(temp_dado)   # faz o inicio apontar para o novo fim
+                        self.lista[self.fim.indice+1] = temp_dado   # posicao da lista vira o temp_dado (insere o dado)
+                        self.fim = self.lista[self.fim.indice+1]    # faz o fim apontar pro dado inserido
+                    else:   # caso o fim esteja antes do inicio
+                        temp_indice = self.getTamanho() - (self.maximo - self.inicio.indice) # calcula o indice q será usado quando circula // maximo - inicio (10 - 8) = 2 = X --> tamanho (6) - X (2) = 4
+                        #print(temp_indice)
+                        temp_dado = Dado_da_Lista(nodo=posicao, indice=temp_indice, dado=dado, anterior=self.fim, proximo=self.inicio)   # cria um obj temporario
+                        
+                        self.fim.alteraProximo(temp_dado)   # faz o antigo fim apontar para o novo fim
+                        self.inicio.alteraAnterior(temp_dado)   # faz o inicio apontar para o novo fim
+                        self.lista[self.fim.indice+1] = temp_dado   # posicao da lista vira o temp_dado (insere o dado)
+                        self.fim = self.lista[self.fim.indice+1]    # faz o fim apontar pro dado inserido
+
+                        self.exibir_estrutura()
+                    
+                else:   # caso o fim+1 esteja fora dos limites
+                    print(">Fora dos limites")
+                    #print(self.fim.indice)
+                    temp_dado = Dado_da_Lista(nodo=posicao, indice=0, dado=dado, anterior=self.fim, proximo=self.inicio)    # cria um obj temporario - indice 0 (inicio da lista fisica)
+                    
+                    self.fim.alteraProximo(temp_dado)   # faz o antigo fim apontar para o novo fim
+                    self.inicio.alteraAnterior(temp_dado)   # faz o inicio apontar para o novo fim
+                    self.lista[0] = temp_dado   # posicao da lista vira o temp_dado (insere o dado)
+                    self.fim = self.lista[0]    # faz o fim apontar pro dado inserido
+
+            else:   # caso a posiçao desejada seja uma já ocupada (ou é invalida)
+                if 0 > posicao > self.fim.nodo+1:
+                    print('Posição inválida')
+                    return False
+                print("> Posição ocupada. Vamos Arrumar")
+                if self.inicio.indice < self.fim.indice:    # caso o inicio esteja antes do fim
+                    print('inicio antes do fim') # caso normal (empurra pro lado) & caso extremo (empurrar pra fora dos limites)
+
+                    if self.getDadoFromNodo(posicao).dado == None:
+                        pass # >> arrumar
+                    posicao_desejada = self.getDadoFromNodo(posicao).indice # posicao_desejada = indice do dado naquela posicao
+                    
+                    # anterior vai ser o anterior do dado que estava na posicao anterior
+                    temp_dado = Dado_da_Lista(nodo=posicao, indice=posicao_desejada, dado=dado, anterior=self.lista[posicao_desejada].getAnterior(), proximo=self.lista[posicao_desejada])   # cria um obj temporario
+                    # exemplo no print abaixo:
+                    #print(temp_dado.getAnterior().dado)
+                    if posicao_desejada == self.fim.indice: # caso a posicao desejada seja o fim da lista lógica (posicao desejada = fim)
+                        if self.fim.indice == (self.maximo-1):  # caso essa posição seja também o fim da lista física
+                            self.fim.alteraNodo(1)  # aumenta o n_nodo (endereço logico) do fim em 1
+                            self.fim.alteraIndice(-(self.maximo-1)) # zera o endereço fisico do fim (indice = 0)
+                            self.lista[0] = self.fim    # coloca o fim no inicio da lista logica
+                            self.lista[self.maximo-1] = temp_dado   # coloca o temp dado no final da lista logica
+                            self.lista[posicao_desejada].getAnterior().alteraProximo(self.lista[posicao_desejada]) # faz o proximo do anterior apontar pro dado inserido
+                            self.lista[posicao_desejada].getProximo().alteraAnterior(self.lista[posicao_desejada]) # faz o anterior do proximo apontar pro dado inserido
+                        else:   # caso essa posição não seja o fim da lista física
+                            self.fim.alteraNodo(1)  # aumenta o n_nodo (endereço logico) do fim em 1
+                            self.fim.alteraIndice(1) # zera o endereço fisico do fim (indice = 0)
+                            self.lista[posicao_desejada+1] = self.fim    # coloca o fim no inicio da lista logica
+                            self.lista[posicao_desejada] = temp_dado    # insere o dado desejado na posicao desejada
+                            self.lista[posicao_desejada].getAnterior().alteraProximo(self.lista[posicao_desejada]) # faz o proximo do anterior apontar pro dado inserido
+                            self.lista[posicao_desejada].getProximo().alteraAnterior(self.lista[posicao_desejada]) # faz o anterior do proximo apontar pro dado inserido
+                        return True
+
+                    
+                    else:   # caso a posicao desejada não seja o ultimo item da lista lógica (posicao desejada < fim)
+                        if self.fim.indice == (self.maximo-1):  # caso o fim da lista lógica seja também o fim da lista física
+                            self.fim.alteraNodo(1)  # aumenta o n_nodo (endereço logico) do fim em 1
+                            self.fim.alteraIndice(-(self.maximo-1)) # zera o endereço fisico do fim (indice = 0)
+                            self.lista[0] = self.fim    # coloca o fim no inicio da lista logica
+                            
+                            for i in range((self.maximo-1), posicao_desejada, -1):  # loop pra empurrar o lado direito da lista fisica:
+                                self.lista[i] = self.lista[i-1] # empurra o endereço da lista fisica para direita
+                                self.lista[i].alteraNodo(1) # aumenta o n_nodo (endereço lógico) em 1
+                                self.lista[i].alteraIndice(1)   # aumenta o indice (endereço fisico) em 1
+                            
+                            self.lista[posicao_desejada] = temp_dado    # insere o dado desejado na posicao desejada
+                            self.lista[posicao_desejada].getAnterior().alteraProximo(self.lista[posicao_desejada]) # faz o proximo do anterior apontar pro dado inserido
+                            self.lista[posicao_desejada].getProximo().alteraAnterior(self.lista[posicao_desejada]) # faz o anterior do proximo apontar pro dado inserido
+                        
+
+
+                        else:   # caso o fim da lista lógica não seja o fim da lista física (fim < maximo-1)                            
+                            for i in range((self.maximo-1), posicao_desejada, -1):  # loop pra empurrar o lado direito da lista fisica:
+                                self.lista[i] = self.lista[i-1] # empurra o endereço da lista fisica para direita
+                                self.lista[i].alteraNodo(1) # aumenta o n_nodo (endereço lógico) em 1
+                                self.lista[i].alteraIndice(1)   # aumenta o indice (endereço fisico) em 1
+                            # colocar o dado desejado na posição desejada:
+                            self.lista[posicao_desejada] = temp_dado    # insere o dado desejado na posicao desejada
+                            self.lista[posicao_desejada].getAnterior().alteraProximo(self.lista[posicao_desejada]) # faz o proximo do anterior apontar pro dado inserido
+                            self.lista[posicao_desejada].getProximo().alteraAnterior(self.lista[posicao_desejada]) # faz o anterior do proximo apontar pro dado inserido
+                        return True
+                            
+                    
+                        
+                        # loop para empurrar pro lado
+                else:   # caso a lista circule (inicio após o fim)
+                    print('fim antes do inicio')
+                    
+                    posicao_desejada = self.getDadoFromNodo(posicao).indice # posicao_desejada = indice do dado naquela posicao
+                    
+                    temp_dado = Dado_da_Lista(nodo=posicao, indice=posicao_desejada, dado=dado, anterior=self.lista[posicao_desejada-1], proximo=self.lista[posicao_desejada])   # cria um obj temporario
+                    #proximo = posicao_desejada pois esse será empurrado pro lado, virando o próximo
+
+                    print(posicao_desejada, self.fim.indice+1)
+
+                    if posicao_desejada == self.fim.indice: # caso a posicao desejada seja o fim da lista circular
+                        self.fim.alteraNodo(1)  # altera o nodo do fim
+                        self.fim.alteraIndice(1)    # altera o indice do fim
+                        self.lista[posicao_desejada+1] = self.lista[posicao_desejada]    # empurra o fim pro lado
+                        self.lista[posicao_desejada] = temp_dado    # insere o dado desejado na posicao desejada
+                        self.lista[posicao_desejada].getAnterior().alteraProximo(self.lista[posicao_desejada]) # faz o proximo do anterior apontar pro dado inserido
+                        self.lista[posicao_desejada].getProximo().alteraAnterior(self.lista[posicao_desejada]) # faz o anterior do proximo apontar pro dado inserido
+                        return True
+                    
+                    else:   # caso a posicao desejada nao esteja no fim da lista
+                        if posicao_desejada >= self.inicio.indice:   # caso a posicao desejada seja antes da fronteira
+                            print('>> caso empurra na fronteira')
+
+                            ## loop pra empurrar o lado esquerdo da lista fisica:
+                            for i in range((self.fim.indice+1), 0, -1):
+                                #print(i)
+                                self.lista[i] = self.lista[i-1] # empurra o endereço da lista fisica para direita
+                                self.lista[i].alteraNodo(1) # aumenta o n_nodo (endereço lógico) em 1
+                                self.lista[i].alteraIndice(1)   # aumenta o indice (endereço fisico) em 1
+                            self.lista[0] = self.lista[self.maximo-1]   # empurra o ultimo da lista fisica para o inicio da lista fisica
+                            self.lista[0].alteraNodo(1) # aumenta o n_nodo (endereço lógico) em 1
+                            self.lista[0].alteraIndice(-(self.maximo-1))    # o indice (endereço fisico) vira 0
+                            self.lista[self.maximo-1] = Dado_da_Lista(nodo=-1, indice=self.maximo-1)
+                            ##
+
+                            # loop pra empurrar o lado direito da lista fisica:
+                            for i in range((self.maximo-1), posicao_desejada, -1):
+                                self.lista[i] = self.lista[i-1] # empurra o endereço da lista fisica para direita
+                                self.lista[i].alteraNodo(1) # aumenta o n_nodo (endereço lógico) em 1
+                                self.lista[i].alteraIndice(1)   # aumenta o indice (endereço fisico) em 1
+                            #
+                            # colocar o dado desejado na posição desejada:
+                            self.lista[posicao_desejada] = temp_dado    # insere o dado desejado na posicao desejada
+                            self.lista[posicao_desejada].getAnterior().alteraProximo(self.lista[posicao_desejada]) # faz o proximo do anterior apontar pro dado inserido
+                            self.lista[posicao_desejada].getProximo().alteraAnterior(self.lista[posicao_desejada]) # faz o anterior do proximo apontar pro dado inserido
+                            return True
+
+
+                        else:   # caso a posicao desejada seja após circular
+                            print(posicao_desejada, self.fim.indice+1)
+                            for i in range((self.fim.indice+1), posicao_desejada, -1):    # loop para empurrar (o i diminui)
+                                print(i)
+                                self.lista[i] = self.lista[i-1]
+                            self.lista[posicao_desejada] = temp_dado    # insere o dado desejado na posicao desejada
+                            self.lista[posicao_desejada].getAnterior().alteraProximo(self.lista[posicao_desejada]) # faz o proximo do anterior apontar pro dado inserido
+                            self.lista[posicao_desejada].getProximo().alteraAnterior(self.lista[posicao_desejada]) # faz o anterior do proximo apontar pro dado inserido
+                            return True
+                            
+
+                                
+
+
+
+                
+                
+                        
+
+
+                    
+
+
 
             
 
@@ -191,21 +338,9 @@ class Lista_circular:
 # teste <<<
 print()
 lista = Lista_circular(10)
-
+letras = ['A','B','C','D','E','F','G','H','I','J', 'teste']
 lista.exibir_estrutura()
 
-lista.inserir(1, 5)
-lista.exibir_estrutura()
-
-for i in lista.lista:
-    i.exibirSe()
-
-
-print('\n\n')
-lista.inserir(2, 1)
-
-lista.exibir_estrutura()
-#lista.exibir_estrutura()
-
-#for i in lista.lista:
-    #i.exibirSe()
+for i in range(0, lista.maximo+1):
+    lista.inserir(letras[i], i+1) ## >>> arrumar linha 239
+    lista.exibir_estrutura()
