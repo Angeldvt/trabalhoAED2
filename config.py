@@ -57,7 +57,14 @@ class Lista_circular:
 
     def getDadoFromNodo(self, n_nodo):
         for i in self.lista:
+            print(f'i.nodo: {i.nodo} // n_nodo: {n_nodo}')
             if i.nodo == n_nodo:
+                return i
+        
+        # caso ele nao ache a partir do Nodo:
+        for i in self.lista:
+            print(f'i.nodo: {i.nodo} // n_nodo: {n_nodo}')
+            if i.nodo == n_nodo-1:
                 return i
 
     # Verifica se a lista está vazia
@@ -172,15 +179,13 @@ class Lista_circular:
                     self.fim = self.lista[0]    # faz o fim apontar pro dado inserido
 
             else:   # caso a posiçao desejada seja uma já ocupada (ou é invalida)
-                if 0 > posicao > self.fim.nodo+1:
+                if (posicao > self.fim.nodo+1) or (0 > posicao):
                     print('Posição inválida')
                     return False
                 print("> Posição ocupada. Vamos Arrumar")
                 if self.inicio.indice < self.fim.indice:    # caso o inicio esteja antes do fim
                     print('inicio antes do fim') # caso normal (empurra pro lado) & caso extremo (empurrar pra fora dos limites)
 
-                    if self.getDadoFromNodo(posicao).dado == None:
-                        pass # >> arrumar
                     posicao_desejada = self.getDadoFromNodo(posicao).indice # posicao_desejada = indice do dado naquela posicao
                     
                     # anterior vai ser o anterior do dado que estava na posicao anterior
@@ -295,26 +300,22 @@ class Lista_circular:
                             return True
                             
 
-                                
 
+    def remover(self, posicao):
+        dado_remover = self.getDadoFromNodo(posicao)    # define o dado a ser removido a partir da posicao
+        print(dado_remover.dado)
 
+        antigo_proximo = dado_remover.getProximo()  # salva o antigo proximo do dado a ser removido
+        antigo_anterior = dado_remover.getAnterior()    # salva o antigo anterior do dado a ser removido
 
-                
-                
-                        
+        antigo_anterior.alteraProximo(antigo_proximo)  # faz o anterior apontar pro proximo do dado removido
+        antigo_proximo.alteraAnterior(antigo_anterior) # faz o proximo apontar pro anterior do dado removido
 
+        self.lista[dado_remover.indice] = Dado_da_Lista(nodo=-1, indice=i)  # remove o dado desejado
 
-                    
+        # agora é preciso ajeitar a lista
+        # >>>>>>>> FAZER
 
-
-
-            
-
-
-
-
-    def remover(self):
-        pass
     def acessar(self):
         pass
 
@@ -337,10 +338,18 @@ class Lista_circular:
 
 # teste <<<
 print()
+
 lista = Lista_circular(10)
 letras = ['A','B','C','D','E','F','G','H','I','J', 'teste']
 lista.exibir_estrutura()
 
-for i in range(0, lista.maximo+1):
-    lista.inserir(letras[i], i+1) ## >>> arrumar linha 239
+lista.inserir('A', 4)
+
+for i in range(1, lista.maximo-2):
+    lista.mostrar_dados()
+    lista.inserir(letras[i], i)
     lista.exibir_estrutura()
+
+
+lista.remover(4)
+lista.mostrar_dados()
