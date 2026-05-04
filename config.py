@@ -6,6 +6,7 @@ class Dado_da_Lista:
         self.dado = dado
         self.nodo = nodo
         self.indice = indice
+
     def alteraProximo(self, proximo):
         self.dado_proximo = proximo
     def alteraAnterior(self, anterior):
@@ -38,7 +39,7 @@ class Lista_circular:
         self.lista = [None] * self.maximo
         for i in range(0, self.maximo):
             self.lista[i] = Dado_da_Lista(nodo=-1, indice=i)
-        
+        '''
         for i in range(0, self.maximo): # apontando os anteriores
             if i == 0:
                 self.lista[i].alteraAnterior(self.lista[self.maximo-1])
@@ -50,7 +51,8 @@ class Lista_circular:
                 self.lista[i].alteraProximo(self.lista[0])
             else:
                 self.lista[i].alteraProximo(self.lista[i+1])
-        
+        >> Nao precisa mais
+        '''
         self.inicio = -1
         self.fim = -1
 
@@ -138,6 +140,7 @@ class Lista_circular:
                 proximo_nodo = proximo_nodo.getProximo()
                 n_nodo += 1
                 #print(proximo_nodo.nodo)
+                >>Nao precisa mais
             '''
             
             return True
@@ -149,6 +152,15 @@ class Lista_circular:
 
             if posicao == self.fim.nodo+1:  # caso a posicao desejada seja fim+1
                 if self.fim.indice < (self.maximo-1):   # testa se o fim+1 está dentro dos limites
+                    temp_indice = self.fim.indice+1 #self.getTamanho() - (self.maximo - self.inicio.indice) # calcula o indice q será usado quando circula // maximo - inicio (10 - 8) = 2 = X --> tamanho (6) - X (2) = 4
+                    #print(temp_indice)
+                    temp_dado = Dado_da_Lista(nodo=posicao, indice=temp_indice, dado=dado, anterior=self.fim, proximo=self.inicio)   # cria um obj temporario
+                    
+                    self.fim.alteraProximo(temp_dado)   # faz o antigo fim apontar para o novo fim
+                    self.inicio.alteraAnterior(temp_dado)   # faz o inicio apontar para o novo fim
+                    self.lista[self.fim.indice+1] = temp_dado   # posicao da lista vira o temp_dado (insere o dado)
+                    self.fim = self.lista[self.fim.indice+1]    # faz o fim apontar pro dado inserido
+                    '''
                     if self.inicio.indice <= self.fim.indice:   # testa se o inicio está antes do fim
                         temp_dado = Dado_da_Lista(nodo=posicao, indice=self.inicio.indice+posicao, dado=dado, anterior=self.fim, proximo=self.inicio)   # cria um obj temporario
                         
@@ -157,7 +169,7 @@ class Lista_circular:
                         self.lista[self.fim.indice+1] = temp_dado   # posicao da lista vira o temp_dado (insere o dado)
                         self.fim = self.lista[self.fim.indice+1]    # faz o fim apontar pro dado inserido
                     else:   # caso o fim esteja antes do inicio
-                        temp_indice = self.getTamanho() - (self.maximo - self.inicio.indice) # calcula o indice q será usado quando circula // maximo - inicio (10 - 8) = 2 = X --> tamanho (6) - X (2) = 4
+                        temp_indice = self.fim.indice+1 #self.getTamanho() - (self.maximo - self.inicio.indice) # calcula o indice q será usado quando circula // maximo - inicio (10 - 8) = 2 = X --> tamanho (6) - X (2) = 4
                         #print(temp_indice)
                         temp_dado = Dado_da_Lista(nodo=posicao, indice=temp_indice, dado=dado, anterior=self.fim, proximo=self.inicio)   # cria um obj temporario
                         
@@ -166,8 +178,8 @@ class Lista_circular:
                         self.lista[self.fim.indice+1] = temp_dado   # posicao da lista vira o temp_dado (insere o dado)
                         self.fim = self.lista[self.fim.indice+1]    # faz o fim apontar pro dado inserido
 
-                        self.exibir_estrutura()
-                    
+                        #self.exibir_estrutura()
+                    '''
                 else:   # caso o fim+1 esteja fora dos limites
                     print(">Fora dos limites")
                     #print(self.fim.indice)
@@ -311,10 +323,30 @@ class Lista_circular:
         antigo_anterior.alteraProximo(antigo_proximo)  # faz o anterior apontar pro proximo do dado removido
         antigo_proximo.alteraAnterior(antigo_anterior) # faz o proximo apontar pro anterior do dado removido
 
-        self.lista[dado_remover.indice] = Dado_da_Lista(nodo=-1, indice=i)  # remove o dado desejado
+        self.lista[dado_remover.indice] = Dado_da_Lista(nodo=-1, indice=dado_remover.indice)  # remove o dado desejado
 
         # agora é preciso ajeitar a lista
         # >>>>>>>> FAZER
+        dado_empurra = antigo_proximo   # o o dado a ser empurrado é o proximo do removido
+        print('teste')
+        dado_empurra.exibirSe()
+        print('teste')
+        if dado_empurra != self.inicio: # se o proximo for o inicio, ele nao empurra
+            while dado_empurra != self.inicio:   # enquanto o dado_empurra não é um None
+
+                if dado_empurra.indice == 0:    # se o indice for 0, empurra pro final da lista fisica
+                    dado_empurra.alteraIndice(self.maximo-1)    # indice do dado a ser empurrado vira maximo-1
+                else:   # se o indice nao for 0, o indice diminui em 1 (indice--)
+                    dado_empurra.alteraIndice(-1)
+                dado_empurra.alteraNodo(-1)
+                self.lista[dado_empurra.indice] = dado_empurra
+                dado_empurra = self.lista[dado_empurra.indice].getProximo() # o o dado a ser empurrado é o proximo do empurrado
+                if self.lista[dado_empurra.indice].getProximo() == self.fim:
+                    self.lista[dado_empurra.indice].getProximo() = Dado_da_Lista(nodo=-1, indice=(dado_empurra.getProximo().indice))  # remove o dado desejado
+                print('teste')
+                dado_empurra.exibirSe()
+                print('teste')
+                
 
     def acessar(self):
         pass
@@ -353,3 +385,4 @@ for i in range(1, lista.maximo-2):
 
 lista.remover(4)
 lista.mostrar_dados()
+lista.exibir_estrutura()
